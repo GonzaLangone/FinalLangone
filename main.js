@@ -1,13 +1,19 @@
 const cards = document.querySelector('#cards');
-const carrito = [];
+
 const headermain = document.querySelector('#header');
 const contenedorBuscador = document.querySelector('#contenedorSearch')
 const contenedorCarrito = document.querySelector('#carrito')
 
-if (localStorage.getItem('cantidad') == 'null'){
+if (! localStorage.getItem('cantidad')){
     carritoContador = 0;
+    carrito = [];
+
 }else{
     carritoContador = localStorage.getItem('cantidad')
+    carritoContador = parseInt(carritoContador)
+    carrito = JSON.parse(localStorage.getItem('productos'));
+
+
 }
 
 function header() {
@@ -32,7 +38,7 @@ function header() {
     let pokeBolsa = document.createElement('img')
     pokeBolsa.src = 'pokebolsa.png'
     pokeBolsa.style = 'width:50px; margin-left:5%;'
-    // pokeBolsa.addEventListener('click', () => {window.location.replace('carrito.html')})
+    pokeBolsa.addEventListener('click', () => {window.location.replace('carrito.html')})
     let cantidad = document.createElement('p')
     cantidad.id = 'cantidad'
     cantidad.innerHTML = '0'
@@ -41,18 +47,89 @@ function header() {
     div.append(pokeBolsa)
     div.append(cantidad)
     headermain.append(div)
-    cantidad.innerText = carritoContador
+    actualizarBolsa()
+}
+function actualizarBolsa(){
+    cantidad.innerHTML = carritoContador
 
 }
-function listaCompras(elemento){
-    div = document.createElement('div');
-    nombre = elemento.name
-    cantidad = elemento.cantidad
-    div.innerHTML = `
-     <h2>pokemon:${nombre} cantidad por pedir:${cantidad}</h2>`
-    div.style = 'border-bottom:1px solid black;text-align: center;'
-    contenedorCarrito.append(div)
+header() 
+if (window.location.pathname == '/carrito.html'){
+    comprar()
+}else{
+    leerApi() 
+
 }
+function comprar(){
+    contenedorCarrito.innerHTML = ''
+    let carrito = localStorage.getItem('productos')
+    carrito = JSON.parse(carrito)
+    carrito.forEach(elem => {
+        div = document.createElement('div')
+        div.style = 'display:flex;justify-content:center;'
+        div.innerHTML = `
+        <h3>Descripcion: ${elem.name}</h3>
+        <p>cantidad: ${elem.cantidad}</p>`
+
+        //! para crear boton de sumar item
+        // buttonSumar = document.createElement('button')
+        // buttonSumar.className ='botonCarrito'
+        // buttonSumar.innerText ='+'
+        // buttonSumar.addEventListener('click', () => {
+        // })
+        //! -----------------------------
+   
+        buttonCancelar = document.createElement('button');
+        buttonCancelar.className ='botonCarrito'
+   
+        buttonCancelar.innerText ='X'
+
+        buttonCancelar.addEventListener('click', () => {
+            eliminar(elem)
+            console.log(elem)
+        })
+        // div.append(buttonSumar)
+        div.append(buttonCancelar)
+        contenedorCarrito.append(div)
+    })
+} 
+
+//!
+//?
+// function listaCompras(elemento){
+//     div = document.createElement('div');
+//     nombre = elemento.name
+//     cantidad = elemento.cantidad
+//     div.innerHTML = `
+//      <h2>pokemon:${nombre} cantidad por pedir:${cantidad}</h2>`
+//     div.style = 'border-bottom:1px solid black;text-align: center;'
+//     contenedorCarrito.append(div)
+// }
+//!\
+//!
+
+function eliminar(elemento){
+    carrito.forEach(obj=> {
+        if (obj.name == elemento.name){
+            carrito.splice(carrito.indexOf(obj), 1)
+            carritoContador = carritoContador - obj.cantidad
+            actualizarBolsa()
+
+        }
+        
+        localStorage.setItem('cantidad', JSON.stringify(carritoContador)) 
+        localStorage.setItem('productos', JSON.stringify(carrito)) 
+    })
+    comprar()
+
+    
+    // // carrito = JSON.parse(localStorage.getItem('productos'));
+    // let indice = carrito.indexOf()
+    // console.log(typeof(carrito))
+    // console.log(indice)
+    // carrito.splice[indice,1]
+}
+
 
 function carritoCompras(){
     total = localStorage.getItem('productos')
@@ -109,9 +186,6 @@ function animacionCargando(){
     align-items:center;`
     cards.append(div)
 }
-
-leerApi() 
-header() 
 
 function tostada(){
     Toastify({
